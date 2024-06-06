@@ -40,3 +40,4 @@ def inference_llm(model_dir, prompt, peft_model=False):
         outputs = tokenizer.decode(outputs[0])
     return outputs
     
+    
