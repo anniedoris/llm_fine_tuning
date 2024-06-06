@@ -22,13 +22,21 @@ def upload_to_hf(model_dir, model_name):
     # For loading QLoRA models
     model = AutoPeftModelForCausalLM.from_pretrained(
         model_dir,
-        low_cpu_mem_usage=True,
-        torch_dtype=torch.float16,
-        load_in_4bit=True)
+        low_cpu_mem_usage=True)
 
-    model.push_to_hub(model_name)
+    # Need to merge LoRA and base model
+    merged_model = model.merge_and_unload()
+    merged_model.save_pretrained("merged_model",safe_serialization=True)
+    tokenizer.save_pretrained("merged_model")
+
+    # push merged model to the hub
+    merged_model.push_to_hub("anniedoris/" + model_name)
+    tokenizer.push_to_hub("anniedoris/" + model_name + "_tokenizer")
+
+    # model.config.to_json_file("config.json")
+    # model.push_to_hub(model_name)
     
     return
 
-upload_to_hf('llama-7-int4-dolly', "qlora_dolly_llama")
+upload_to_hf('llama-7-int4-dolly', "merged_qlora_dolly_llama")
     
