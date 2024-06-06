@@ -12,7 +12,7 @@ dataset = load_dataset("databricks/databricks-dolly-15k", split="train")
 
 print(f"dataset size: {len(dataset)}")
 print(dataset[randrange(len(dataset))])
-# dataset size: 15011
+# # dataset size: 15011
 
 def format_instruction(sample):
 	return f"""### Instruction:
@@ -75,8 +75,8 @@ args = TrainingArguments(
     logging_steps=10,
     save_strategy="epoch",
     learning_rate=2e-4,
-	bf16=False,
-    tf32=False,
+	bf16=True,
+    tf32=True,
     max_grad_norm=0.3,
     warmup_ratio=0.03,
     lr_scheduler_type="constant",
