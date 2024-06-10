@@ -5,59 +5,147 @@ sys.path.append("utils")
 from inference import *
 import transformers
 import torch
+from torch import cuda
+from transformers import GenerationConfig
 
+# Referenced this video and associated colab: https://www.youtube.com/watch?v=Z6sCl6abJj4
 
-# result = inference_llm("NousResearch/Llama-2-7b-chat-hf", "What is your name?", cuda=False)
-# result = inference_llm("lmsys/vicuna-7b-v1.5", "What is your name?", cuda=False)
-# print(result)
+def inference_hf_model(model_name, input_prompt, max_new_toks=520):
+    """
+        Gets a inference response from a huggingface model based on a prompt.
 
-# model = AutoModelForCausalLM.from_pretrained("lmsys/vicuna-7b-v1.5", device_map="auto", load_in_4bit=True)
+        Parameters:
+            model_name: name of the huggingface model
+            input_prompt: prompt to ask the huggingface model
+            max_new_tokens: number of tokens you'd like the model to generate
 
-# tokenizer = AutoTokenizer.from_pretrained("lmsys/vicuna-7b-v1.5", padding_side="left")
-# model_inputs = tokenizer(["What is your name"], return_tensors="pt")
+        Returns:
+            Model's response
+        """
 
-# Inference pipeline for llama 2 chat
-model = "NousResearch/Llama-2-7b-chat-hf"
+    tokenizer = AutoTokenizer.from_pretrained(model_name)
 
-tokenizer = AutoTokenizer.from_pretrained(model)
-
-model = AutoModelForCausalLM.from_pretrained(model)
-
-pipeline = transformers.pipeline(
+    model_pipeline = transformers.pipeline(
     "text-generation",
-    model=model,
+    model=model_name,
     tokenizer = tokenizer,
     torch_dtype=torch.float16,
-    max_new_tokens = 512,
-    device_map="auto",
-)
+    max_new_tokens = max_new_toks,
+    device_map="auto"
+    )
 
-sequences = pipeline(
-    "I'm looking to make a lemon cake. Could you please give me a recipe for a good lemon cake?",
-    do_sample=True,
-)
+    # There are other traditional LLM inference settings that can be modified here
+    sequences = model_pipeline(
+            input_prompt,
+            do_sample=True
+    )
 
-print(sequences[0].get("generated_text"))
+    # TODO: play with other parameters settings for inference?
 
-# Inference pipeline for llama 2 no chat
-model = "NousResearch/Llama-2-7b-hf"
+#     # sequences = model_pipeline(
+#     #     prompt,
+#     #     do_sample=True,
+#     #     top_k=10,
+#     #     num_return_sequences=1,
+#     #     eos_token_id=tokenizer.eos_token_id,
+#     #     max_length=256,
+#     # )
 
-tokenizer = AutoTokenizer.from_pretrained(model)
+    model_response = sequences[0]['generated_text']
+    #TODO: for llama-2-7b-chat and llama-2-7b-hf, prompt is included in the response. Need to remove this
 
-model = AutoModelForCausalLM.from_pretrained(model)
+    def strip_prompt_from_generated_text(response, prompt):
+        print(len(strip_prompt_from_generated_text))
+        return
 
-pipeline = transformers.pipeline(
-    "text-generation",
-    model=model,
-    tokenizer = tokenizer,
-    torch_dtype=torch.float16,
-    max_new_tokens = 512,
-    device_map="auto",
-)
+    print("REMOVING PROMPT")
+    strip_prompt_from_generated_text(model_response, input_prompt)
+    return model_response
 
-sequences = pipeline(
-    "I'm looking to make a lemon cake. Could you please give me a recipe for a good lemon cake?",
-    do_sample=True,
-)
+# NousResearch/Llama-2-7b-chat-hf
+# "NousResearch/Llama-2-7b-hf"
+model_response = inference_hf_model("lmsys/vicuna-7b-v1.5", 'I liked "Breaking Bad" and "Band of Brothers". Do you have any recommendations of other shows I might like?\n')
+print("MODEL:")
+print(model_response)
 
-print(sequences[0].get("generated_text"))
+
+# OLD HF INFERENCE CODE THAT WORKED ON A100
+# ## code that works on a100 ###
+# # Inference pipeline for llama 2 chat
+# model = "NousResearch/Llama-2-7b-chat-hf"
+
+# tokenizer = AutoTokenizer.from_pretrained(model)
+
+# # model = AutoModelForCausalLM.from_pretrained(model)
+
+# model_pipeline = transformers.pipeline(
+#     "text-generation",
+#     model=model,
+#     tokenizer = tokenizer,
+#     torch_dtype=torch.float16,
+#     max_new_tokens = 512,
+#     device_map="auto",
+# )
+
+# def get_response(prompt: str) -> None:
+#     """
+#     Generate a response from the Llama model.
+
+#     Parameters:
+#         prompt (str): The user's input/question for the model.
+
+#     Returns:
+#         None: Prints the model's response.
+#     """
+#     sequences = model_pipeline(
+#         prompt,
+#         do_sample=True
+#     )
+#     # sequences = model_pipeline(
+#     #     prompt,
+#     #     do_sample=True,
+#     #     top_k=10,
+#     #     num_return_sequences=1,
+#     #     eos_token_id=tokenizer.eos_token_id,
+#     #     max_length=256,
+#     # )
+#     print("Chatbot:", sequences[0]['generated_text'])
+#     return
+
+# prompt = 'I liked "Breaking Bad" and "Band of Brothers". Do you have any recommendations of other shows I might like?\n'
+# get_response(prompt)
+
+# ##########
+
+
+
+### OLD HF INFERENCE CODE THAT WORKED ON MAC
+# sequences = pipeline(
+#     "I'm looking to make a lemon cake. Could you please give me a recipe for a good lemon cake?",
+#     do_sample=True,
+# )
+
+# print(sequences[0].get("generated_text"))
+
+# # Inference pipeline for llama 2 no chat
+# model = "NousResearch/Llama-2-7b-hf"
+
+# tokenizer = AutoTokenizer.from_pretrained(model)
+
+# model = AutoModelForCausalLM.from_pretrained(model)
+
+# pipeline = transformers.pipeline(
+#     "text-generation",
+#     model=model,
+#     tokenizer = tokenizer,
+#     torch_dtype=torch.float16,
+#     max_new_tokens = 512,
+#     device_map="auto",
+# )
+
+# sequences = pipeline(
+#     "I'm looking to make a lemon cake. Could you please give me a recipe for a good lemon cake?",
+#     do_sample=True,
+# )
+
+# print(sequences[0].get("generated_text"))
