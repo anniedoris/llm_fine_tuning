@@ -40,8 +40,7 @@ def inference_hf_model(model_name, input_prompt, max_new_toks=520):
             do_sample=True
     )
 
-    # TODO: play with other parameters settings for inference?
-
+    # TODO: play with other parameters settings for inference? Here's an example of some samples below
 #     # sequences = model_pipeline(
 #     #     prompt,
 #     #     do_sample=True,
@@ -52,14 +51,15 @@ def inference_hf_model(model_name, input_prompt, max_new_toks=520):
 #     # )
 
     model_response = sequences[0]['generated_text']
-    #TODO: for llama-2-7b-chat and llama-2-7b-hf, prompt is included in the response. Need to remove this
 
+    # Helper function that strips a prompt from a model's response
     def strip_prompt_from_generated_text(response, prompt):
-        print(len(strip_prompt_from_generated_text))
-        return
+        return response[len(prompt):]
 
-    print("REMOVING PROMPT")
-    strip_prompt_from_generated_text(model_response, input_prompt)
+    # These are models that we know include prompts in their generated responses
+    if model_name == "lmsys/vicuna-7b-v1.5" or model == "NousResearch/Llama-2-7b-chat-hf" or "NousResearch/Llama-2-7b-hf":
+        model_response = strip_prompt_from_generated_text(model_response, input_prompt)
+
     return model_response
 
 # NousResearch/Llama-2-7b-chat-hf
