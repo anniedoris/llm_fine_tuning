@@ -52,6 +52,7 @@ def inference_hf_model(model_name, input_prompt, max_new_toks=250):
 #     # )
 
     model_response = sequences[0]['generated_text']
+    model_response_before_strip = model_response
 
     # Helper function that strips a prompt from a model's response
     def strip_prompt_from_generated_text(response, prompt):
@@ -61,7 +62,7 @@ def inference_hf_model(model_name, input_prompt, max_new_toks=250):
     if (model_name == "lmsys/vicuna-7b-v1.5") or (model_name == "NousResearch/Llama-2-7b-chat-hf") or (model_name == "NousResearch/Llama-2-7b-hf"):
         model_response = strip_prompt_from_generated_text(model_response, input_prompt)
 
-    return model_response
+    return model_response, model_response_before_strip
 
 
 def inference_qlora_ift_model(model_dir, prompt, max_new_toks=250):
