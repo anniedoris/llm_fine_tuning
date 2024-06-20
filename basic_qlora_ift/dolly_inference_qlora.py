@@ -2,38 +2,43 @@ import sys
 sys.path.append("utils")
 from inference import *
 from datasets import load_dataset
+from random import randrange
+import pandas as pd
+from tqdm import tqdm
 
-# Load the dataset
-dataset = load_dataset("databricks/databricks-dolly-15k", split="train")
-sample = dataset[randrange(len(dataset))]
-
-# Format the prompt
-prompt = f"""### Instruction:
-Use the Input below to create an instruction, which could have been used to generate the input using an LLM.
+### OLD TEST EXAMPLE THAT QLORA WORKS FOR DOLLY EXAMPLE ###
+# prompt = f"""### Instruction:
+# Use the Input below to create an instruction, which could have been used to generate the input using an LLM.
  
-### Input:
-{sample['response']}
+# ### Input:
+# 1 cup of sugar, 2 cups of flour, lots of lemon juice and lemon zest, baking soda, salt, and vanilla extract.
  
-### Response:
-"""
-# prompt = "What is a good recipe for lemon cake?"
+# ### Response:
+# """
+# model_response = inference_qlora_ift_model("llama-7-int4-dolly", prompt)
+# print("IFT MODEL:")
+# print(model_response)
+#########################################
 
-# Run inference for ift model
-model_response = inference_llm("llama-7-int4-dolly", prompt, peft_model=True)
 
-# Run inference for pretrained model
-pretrained_model_response = inference_llm("NousResearch/Llama-2-7b-hf", prompt)
+### INFERENCE ON DESIGNQA
 
-print("\n")
-print("INSTRUCTION TUNED MODEL")
-print(f"Prompt:\n{sample['response']}\n")
-print(f"Ground truth:\n{sample['instruction']}\n")
-print(f"Generated instruction ift:")
-print(model_response)
+model_name = "llama-2-retrieval-w-context"
 
-print("\n")
-print("PRETRAINED MODEL")
-print(f"Prompt:\n{sample['response']}\n")
-print(f"Ground truth:\n{sample['instruction']}\n")
-print(f"Generated instruction pretrained:")
-print(pretrained_model_response)
+question_df = pd.read_csv('design_qa/context_and_prompts.csv')
+response_df = pd.DataFrame(columns=['question', 'model_prediction', 'ground_truth'])
+
+def format_instruction(row):
+	return f"""### Instruction:
+    {row['prompt_with_context']}
+
+    ### Response:
+    """
+
+for i, row in tqdm(question_df.iterrows(), total=len(question_df), desc='generating model responses for retrieval qa'):
+    prompt = format_instruction(row)
+    model_response = inference_qlora_ift_model(model_name, prompt)
+    row = {'question': row['prompt_with_context'], 'ground_truth': row['ground_truth'], 'model_prediction': model_response}
+    response_df = pd.concat([response_df, pd.DataFrame([row])], ignore_index = True)
+# response_df.to_csv('test.csv')
+response_df.to_csv(model_name.replace('/', "_") + '_retrievalRAG.csv')
