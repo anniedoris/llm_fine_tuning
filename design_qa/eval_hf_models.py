@@ -9,6 +9,7 @@ from tqdm import tqdm
 ### "NousResearch/Llama-2-7b-hf"
 ### "lmsys/vicuna-7b-v1.5"
 
+# TODO: figure out why lmsys/vicuna doesn't return anything?
 model_name = "lmsys/vicuna-7b-v1.5"
 question_df = pd.read_csv('design_qa/context_and_prompts.csv')
 response_df = pd.DataFrame(columns=['question', 'model_prediction', 'ground_truth'])
@@ -35,7 +36,7 @@ response_df.to_csv(model_name.replace('/', "_") + '_retrievalRAG.csv')
 ### FOR PEFT IFT MODEL INFERENCE
 # prompt = f"""### Instruction:
 # Use the Input below to create an instruction, which could have been used to generate the input using an LLM.
- 
+
 # ### Input:
 # 1 cup of sugar, 2 cups of flour, lots of lemon juice and lemon zest, baking soda, salt, and vanilla extract.
  
