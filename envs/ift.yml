@@ -1,0 +1,4 @@
+name: ift
+channels:
+  - conda-forge
+prefix: /home/annie/miniforge3/envs/ift

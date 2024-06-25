@@ -1,0 +1,4 @@
+name: inference
+channels:
+  - conda-forge
+prefix: /home/annie/miniforge3/envs/inference
