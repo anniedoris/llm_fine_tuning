@@ -25,7 +25,7 @@ import os
 model_name = "llama-2-chat-retrieval-w-context"
 inference_save_dir_parent = "design_qa"
 
-question_df = pd.read_csv('design_qa/context_and_prompts.csv')
+question_df = pd.read_csv('design_qa/datasets/context_and_prompts.csv')
 response_df = pd.DataFrame(columns=['question', 'model_prediction', 'ground_truth'])
 
 # Llama instruction format

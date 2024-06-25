@@ -14,7 +14,7 @@ inference_save_dir_parent = "design_qa"
 
 # TODO: figure out why lmsys/vicuna doesn't return anything?
 model_name = "instructlab/granite-7b-lab"
-question_df = pd.read_csv('design_qa/context_and_prompts.csv')
+question_df = pd.read_csv('design_qa/datasets/context_and_prompts.csv')
 response_df = pd.DataFrame(columns=['question', 'model_prediction', 'ground_truth', 'complete_response'])
 
 for i, row in tqdm(question_df.iterrows(), total=len(question_df), desc='generating model responses for retrieval qa'):

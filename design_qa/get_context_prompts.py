@@ -177,7 +177,7 @@ if __name__ == '__main__':
                     print(f"Index: {i}")
                     response = ' '
 
-    context_prompt_df.to_csv('context_and_prompts.csv')
+    context_prompt_df.to_csv('design_qa/datasets/context_and_prompts.csv')
 
                     # # Save the response
                     # questions_pd.at[i, 'model_prediction'] = response

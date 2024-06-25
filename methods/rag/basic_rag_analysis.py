@@ -1,6 +1,6 @@
 import pandas as pd
 
-df = pd.read_csv('design_qa/context_and_prompts.csv')
+df = pd.read_csv('design_qa/datasets/context_and_prompts.csv')
 
 count = 0
 for i, row in df.iterrows():
