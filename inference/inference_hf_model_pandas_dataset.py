@@ -3,6 +3,7 @@
 from inference import *
 import pandas as pd
 from tqdm import tqdm
+import os
 
 ### DIFFERENT MODEL OPTIONS FOR HF INFERENCE
 ### "NousResearch/Llama-2-7b-chat-hf"
@@ -10,6 +11,8 @@ from tqdm import tqdm
 ### "lmsys/vicuna-7b-v1.5"
 ### "instructlab/granite-7b-lab"
 ### "instructlab/merlinite-7b-lab"
+
+inference_save_dir_parent = "design_qa"
 
 # TODO: figure out why lmsys/vicuna doesn't return anything?
 model_name = "instructlab/granite-7b-lab"
@@ -26,4 +29,11 @@ for i, row in tqdm(question_df.iterrows(), total=len(question_df), desc='generat
         # print(complete_response)
         row = {'question': question, 'ground_truth': row['ground_truth'], 'model_prediction': model_response, 'complete_response': complete_response}
         response_df = pd.concat([response_df, pd.DataFrame([row])], ignore_index = True)
-response_df.to_csv('design_qa/' + model_name.replace('/', "_") + '_retrievalRAG.csv')
+
+# Save the results from the inference into the designqa folder
+model_save_dir = model_name.replace('/', "_")
+if model_save_dir in os.listdir(inference_save_dir_parent):
+    pass
+else:
+    os.mkdir(inference_save_dir_parent + '/' + model_save_dir)
+response_df.to_csv(inference_save_dir_parent + '/' + model_save_dir + "/" + model_save_dir + '_retrievalRAG.csv')
