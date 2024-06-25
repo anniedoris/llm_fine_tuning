@@ -1,6 +1,6 @@
 from metrics import eval_retrieval_qa
 
-csv_name = 'lmsys_vicuna-7b-v1.5_retrievalRAG.csv'
+csv_name = 'design_qa/instructlab_merlinite-7b-lab_retrievalRAG.csv'
 av, all_scores = eval_retrieval_qa(csv_name)
 
 with open(csv_name.strip('.csv') + ".txt", 'w') as file:
