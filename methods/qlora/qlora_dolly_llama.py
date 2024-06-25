@@ -68,7 +68,7 @@ model = prepare_model_for_kbit_training(model)
 model = get_peft_model(model, peft_config)
 
 args = TrainingArguments(
-    output_dir="llama-7-int4-dolly",
+    output_dir="models/test_structure",
     num_train_epochs=3,
     per_device_train_batch_size=6 if use_flash_attention else 4,
     gradient_accumulation_steps=2,
