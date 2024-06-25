@@ -1,3 +1,5 @@
+# This is a script for running qlora on the retrieval with context dataset. Make sure to change the model_id and the output_dir folder
+
 from datasets import load_dataset
 from random import randrange
 from random import randrange
