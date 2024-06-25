@@ -1,5 +1,3 @@
-# import sys
-# sys.path.append("utils")
 from inference import *
 import pandas as pd
 from tqdm import tqdm
@@ -20,15 +18,14 @@ question_df = pd.read_csv('design_qa/context_and_prompts.csv')
 response_df = pd.DataFrame(columns=['question', 'model_prediction', 'ground_truth', 'complete_response'])
 
 for i, row in tqdm(question_df.iterrows(), total=len(question_df), desc='generating model responses for retrieval qa'):
-    if i in [0, 1, 2]:
-        question = row['prompt_with_context']
-        model_response, complete_response = inference_hf_model(model_name, question)
-        # print("RESPONSE:")
-        # print(model_response)
-        # print("COMPLETE RESPONSE")
-        # print(complete_response)
-        row = {'question': question, 'ground_truth': row['ground_truth'], 'model_prediction': model_response, 'complete_response': complete_response}
-        response_df = pd.concat([response_df, pd.DataFrame([row])], ignore_index = True)
+    question = row['prompt_with_context']
+    model_response, complete_response = inference_hf_model(model_name, question)
+    # print("RESPONSE:")
+    # print(model_response)
+    # print("COMPLETE RESPONSE")
+    # print(complete_response)
+    row = {'question': question, 'ground_truth': row['ground_truth'], 'model_prediction': model_response, 'complete_response': complete_response}
+    response_df = pd.concat([response_df, pd.DataFrame([row])], ignore_index = True)
 
 # Save the results from the inference into the designqa folder
 model_save_dir = model_name.replace('/', "_")
