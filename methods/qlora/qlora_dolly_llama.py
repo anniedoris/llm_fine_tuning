@@ -1,3 +1,5 @@
+# This is a script for running Qlora on the Dolly dataset
+
 from datasets import load_dataset
 from random import randrange
 from random import randrange
