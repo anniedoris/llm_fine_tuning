@@ -8,10 +8,11 @@ import torch
 from torch import cuda
 from transformers import GenerationConfig
 from peft import AutoPeftModelForCausalLM
+from tqdm import tqdm
 
 # Referenced this video and associated colab: https://www.youtube.com/watch?v=Z6sCl6abJj4
 
-def inference_hf_model(model_name, input_prompt, max_new_toks=250):
+def inference_hf_model(model_name, input_prompts, max_new_toks=250):
     """
         Gets a inference response from a huggingface model based on a prompt.
 
@@ -24,45 +25,59 @@ def inference_hf_model(model_name, input_prompt, max_new_toks=250):
             Model's response
     """
 
+    # TODO: should I be using Llamatokenizer?
     tokenizer = AutoTokenizer.from_pretrained(model_name)
 
+    print("Starting model loading...")
+    model = AutoModelForCausalLM.from_pretrained(model_name)
+    print("Ending model loading...")
+
+    model_responses = []
+    model_responses_before_strip = []
+
     model_pipeline = transformers.pipeline(
-    "text-generation",
-    model=model_name,
-    tokenizer = tokenizer,
-    torch_dtype=torch.float16,
-    max_new_tokens = max_new_toks,
-    device_map="auto"
-    )
+        "text-generation",
+        model=model_name,
+        tokenizer = tokenizer,
+        torch_dtype=torch.float16,
+        max_new_tokens = max_new_toks,
+        device_map="auto"
+        )
 
-    # There are other traditional LLM inference settings that can be modified here
-    sequences = model_pipeline(
-            input_prompt,
-            do_sample=True
-    )
+# question_df.iterrows(), total=len(question_df), desc='generating model responses for retrieval qa'
+    for input_prompt in tqdm(input_prompts, total=len(input_prompts), desc='generating model responses for retrieval qa'):
 
-    # TODO: play with other parameters settings for inference? Here's an example of some samples below
-#     # sequences = model_pipeline(
-#     #     prompt,
-#     #     do_sample=True,
-#     #     top_k=10,
-#     #     num_return_sequences=1,
-#     #     eos_token_id=tokenizer.eos_token_id,
-#     #     max_length=256,
-#     # )
+        # There are other traditional LLM inference settings that can be modified here
+        sequences = model_pipeline(
+                input_prompt,
+                do_sample=True
+        )
 
-    model_response = sequences[0]['generated_text']
-    model_response_before_strip = model_response
+        # TODO: play with other parameters settings for inference? Here's an example of some samples below
+    #     # sequences = model_pipeline(
+    #     #     prompt,
+    #     #     do_sample=True,
+    #     #     top_k=10,
+    #     #     num_return_sequences=1,
+    #     #     eos_token_id=tokenizer.eos_token_id,
+    #     #     max_length=256,
+    #     # )
 
-    # Helper function that strips a prompt from a model's response
-    def strip_prompt_from_generated_text(response, prompt):
-        return response[len(prompt):]
+        model_response = sequences[0]['generated_text']
+        model_response_before_strip = model_response
 
-    # These are models that we know include prompts in their generated responses
-    if (model_name == "lmsys/vicuna-7b-v1.5") or (model_name == "NousResearch/Llama-2-7b-chat-hf") or (model_name == "NousResearch/Llama-2-7b-hf") or (model_name == "instructlab/granite-7b-lab") or (model_name == "instructlab/merlinite-7b-lab"):
-        model_response = strip_prompt_from_generated_text(model_response, input_prompt)
+        # Helper function that strips a prompt from a model's response
+        def strip_prompt_from_generated_text(response, prompt):
+            return response[len(prompt):]
 
-    return model_response, model_response_before_strip
+        # These are models that we know include prompts in their generated responses
+        if (model_name == "lmsys/vicuna-7b-v1.5") or (model_name == "NousResearch/Llama-2-7b-chat-hf") or (model_name == "NousResearch/Llama-2-7b-hf") or (model_name == "instructlab/granite-7b-lab") or (model_name == "instructlab/merlinite-7b-lab"):
+            model_response = strip_prompt_from_generated_text(model_response, input_prompt)
+
+        model_responses.append(model_response)
+        model_responses_before_strip.append(model_response_before_strip)
+
+    return model_responses, model_responses_before_strip
 
 
 def inference_qlora_ift_model(model_dir, prompt, max_new_toks=250):
