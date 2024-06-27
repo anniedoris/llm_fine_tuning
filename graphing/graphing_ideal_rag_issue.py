@@ -16,6 +16,9 @@ print(mistake_values)
 
 # Example data
 categories = df_cleaned['mistake_type'].unique().tolist()
+print("categories!")
+print(categories)
+
 values = [
     mistake_values[categories[0]],  # Values for Category 1
     mistake_values[categories[1]],      # Values for Category 2
@@ -65,12 +68,11 @@ plt.savefig('graphing/idealrag_issue.png')
 
 # Example data
 sizes = [len(mistake_values[categories[0]]), len(mistake_values[categories[1]]), len(mistake_values[categories[2]]), len(mistake_values[categories[3]])]  # Four different values
-colors = ['#ff9999','#66b3ff','#99ff99','#ffcc99']  # Different colors for each section
+colors = ['#66b3ff','#ffcc99','#99ff99', '#ff9999']  # Different colors for each section
 
 # Create a pie chart
 plt.figure(figsize=(8, 8))
 plt.pie(sizes, labels=categories, colors=colors, autopct='%1.1f%%', startangle=140)
-plt.title('Pie Chart Example')
 plt.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
 
 # Display the plot
