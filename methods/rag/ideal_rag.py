@@ -3,7 +3,7 @@
 import pandas as pd
 import random
 
-df = pd.read_csv('design_qa/datasets/context_and_prompts.csv')
+df = pd.read_csv('design_qa/datasets/context_and_prompts3.csv')
 
 length_rag = []
 
@@ -85,13 +85,14 @@ for i, row in df_ideal_rag.iterrows():
     if pos == -1:
         print("Search string not found in the document.")
         print(i)
+        print(row['question'].split('What does rule')[1].split('state exactly')[0])
         number_count += 1
         df_ideal_rag.drop(i, inplace=True)
 
 print(number_count)
 
 # 43 rules are excluded since they are not there verbatim -> fix these rules
-df_ideal_rag.to_csv('design_qa/datasets/ideal_rag.csv')
+df_ideal_rag.to_csv('design_qa/datasets/ideal_rag_set3.csv')
 
 
 # print("\nSEARCH STRING")
